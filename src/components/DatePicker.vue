@@ -131,7 +131,10 @@ const setNextMonth = () => {
       </tbody>
     </table>
     <div>
-      <span>{{ localeLang }}</span>
+      <select v-model="localeLang">
+        <option value="en">EN-en</option>
+        <option value="ru">RU-ru</option>
+      </select>
     </div>
   </div>
 </template>
