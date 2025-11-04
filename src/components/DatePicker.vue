@@ -12,6 +12,10 @@ const { date = new Date() } = defineProps<{
   date?: Date | string;
 }>();
 
+const emit = defineEmits<{
+  selectedDate: [selectedDate: Date];
+}>();
+
 const clearDate = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
@@ -94,6 +98,11 @@ const setNextMonth = () => {
     viewingMonthYear.value.setMonth(viewingMonthYear.value.getMonth() + 1),
   );
 };
+
+const selectNewDate = (date: Date) => {
+  selectedDate.value = date;
+  emit("selectedDate", selectedDate.value);
+};
 </script>
 
 <template>
@@ -107,16 +116,16 @@ const setNextMonth = () => {
         >
       </span>
     </div>
-    <table class="month-table" v-if="days.length > 0">
+    <table class="date-picker-container-calendar" v-if="days.length > 0">
       <thead>
         <tr>
-          <td v-for="day of days.slice(0, 7)" :key="day.date.getDate()">
+          <th v-for="day of days.slice(0, 7)" :key="day.date.getDate()">
             {{
               new Intl.DateTimeFormat(localeLang, {
                 weekday: "short",
               }).format(day.date)
             }}
-          </td>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -124,6 +133,13 @@ const setNextMonth = () => {
           <td
             v-for="day of days.slice((i - 1) * 7, i * 7)"
             :key="`day-timestamp-${day.date.getTime()}`"
+            :class="{
+              'date-picker-date-cell': true,
+              'date-picker-date-selected': day.isSelected,
+              'date-picker-date-today': day.isToday,
+              'date-picker-date-not-shadowed': !day.isShadowed,
+            }"
+            @click="selectNewDate(day.date)"
           >
             {{ !day.isShadowed ? day.date.getDate() : null }}
           </td>
@@ -155,14 +171,33 @@ const setNextMonth = () => {
   margin-bottom: 10px;
 }
 
+.date-picker-container-calendar {
+  table-layout: fixed;
+  width: 100%;
+  height: 100%;
+}
+
 .date-picker-change-month-button {
   cursor: pointer;
 }
 
-td {
+.date-picker-date-cell {
   width: 50px;
   height: 50px;
   text-align: center;
+}
+
+.date-picker-date-selected {
+  border: 2px solid #48d4ff;
+  height: 46px;
+}
+
+.date-picker-date-today {
+  color: red;
+}
+
+.date-picker-date-not-shadowed {
+  cursor: pointer;
 }
 </style>
 
